@@ -1,26 +1,75 @@
-<div>
-<h2>Energy Consumption (kWh) Calculator</h2>
-<label>Daily Units (kWh): <input type="number" id="dailyUnits" value="10"></label>
-<label>Unit Cost (currency/unit): <input type="number" id="unitCost" value="15"></label>
-<button class="calc-btn" onclick="calculateEnergy()">Calculate</button>
-<div class="result-box" id="energyResult"></div>
+<div class="calculator-container">
+  <h2>⚡ Energy Consumption Calculator (kWh)</h2>
+
+  <label for="mode">Select Input Mode:</label>
+  <select id="mode" onchange="toggleMode()">
+    <option value="watts">Power in Watts</option>
+    <option value="amps">Current, Voltage & PF</option>
+  </select>
+
+  <div id="wattsInput">
+    <label for="powerWatts">Power (Watts)</label>
+    <input type="number" id="powerWatts" placeholder="e.g. 220">
+  </div>
+
+  <div id="ampInput" style="display:none;">
+    <label for="current">Current (Amps)</label>
+    <input type="number" id="current" placeholder="e.g. 1">
+    <label for="voltage">Voltage (Volts)</label>
+    <input type="number" id="voltage" placeholder="e.g. 220">
+    <label for="pf">Power Factor (default 0.9)</label>
+    <input type="number" id="pf" value="0.9" min="0.1" max="1" step="0.01">
+  </div>
+
+  <label for="hoursPerDay">Hours per Day</label>
+  <input type="number" id="hoursPerDay" value="24">
+
+  <label for="days">Number of Days</label>
+  <input type="number" id="days" value="30">
+
+  <button class="calc-btn" onclick="calculateEnergy()">Calculate Energy</button>
+
+  <div id="result"></div>
+</div>
 
 <script>
+function toggleMode() {
+  const mode = document.getElementById('mode').value;
+  document.getElementById('wattsInput').style.display = mode === 'watts' ? 'block' : 'none';
+  document.getElementById('ampInput').style.display = mode === 'amps' ? 'block' : 'none';
+}
+
 function calculateEnergy() {
-  const daily = parseFloat(document.getElementById('dailyUnits').value);
-  const cost = parseFloat(document.getElementById('unitCost').value);
+  const mode = document.getElementById('mode').value;
+  const hoursPerDay = parseFloat(document.getElementById('hoursPerDay').value);
+  const days = parseFloat(document.getElementById('days').value);
 
-  const monthly = daily * 30;
-  const yearly = daily * 365;
-  const dailyCost = daily * cost;
-  const monthlyCost = monthly * cost;
-  const yearlyCost = yearly * cost;
+  let powerW = 0;
+  let steps = "";
 
-  document.getElementById('energyResult').innerHTML = `
-    <strong>Daily Units:</strong> ${daily} kWh, <strong>Cost:</strong> ${dailyCost}<br>
-    <strong>Monthly Units:</strong> ${monthly} kWh, <strong>Cost:</strong> ${monthlyCost}<br>
-    <strong>Yearly Units:</strong> ${yearly} kWh, <strong>Cost:</strong> ${yearlyCost}
-  `;
+  if (mode === 'watts') {
+    powerW = parseFloat(document.getElementById('powerWatts').value);
+    if (isNaN(powerW)) { alert("Please enter power in watts."); return; }
+    steps += `1. Power (W) = ${powerW.toFixed(2)} W`;
+  } else {
+    const current = parseFloat(document.getElementById('current').value);
+    const voltage = parseFloat(document.getElementById('voltage').value);
+    const pf = parseFloat(document.getElementById('pf').value);
+    if (isNaN(current) || isNaN(voltage) || isNaN(pf)) { alert("Enter valid values."); return; }
+    powerW = current * voltage * pf;
+    steps += `1. Power (W) = Current × Voltage × PF = ${current} × ${voltage} × ${pf} = ${powerW.toFixed(2)} W`;
+  }
+
+  const powerKW = powerW / 1000;
+  const dailyEnergy = powerKW * hoursPerDay;
+  const totalEnergy = dailyEnergy * days;
+
+  steps += `
+2. Power (kW) = ${powerW.toFixed(2)} ÷ 1000 = ${powerKW.toFixed(3)} kW
+3. Daily Energy = ${powerKW.toFixed(3)} × ${hoursPerDay} hrs = ${dailyEnergy.toFixed(3)} kWh/day
+4. Total Energy for ${days} days = ${dailyEnergy.toFixed(3)} × ${days} = ${totalEnergy.toFixed(3)} kWh`;
+
+  document.getElementById('result').innerHTML = steps + 
+    `<div class="highlight-box">✅ Total Energy Consumed: ${totalEnergy.toFixed(3)} kWh</div>`;
 }
 </script>
-</div>
