@@ -1,4 +1,3 @@
-// Elements
 const menu = document.getElementById('calculatorList');
 const menuToggleBtn = document.getElementById('menuToggleBtn');
 const installBtn = document.getElementById('installBtn');
@@ -8,20 +7,30 @@ menuToggleBtn.addEventListener('click', () => {
   menu.classList.toggle('menu-closed');
 });
 
-// Load calculators from JSON
-fetch('calculators.json')
-  .then(res => res.json())
-  .then(calculators => {
-    calculators.forEach(calc => {
-      const card = document.createElement('div');
-      card.className = 'calculator-card';
-      card.innerHTML = `<h3>${calc.title}</h3><p>${calc.desc}</p>`;
-      card.onclick = () => loadCalculator(calc.file);
-      menu.appendChild(card);
-    });
-  });
+// List of calculators
+const calculators = [
+  {
+    title: "⚡ DC Cable Size Calculator",
+    desc: "Calculate copper cable cross-section for DC systems",
+    file: "dc-cable.html"
+  },
+  {
+    title: "⚡ Energy Consumption Calculator",
+    desc: "Calculate daily/monthly/yearly energy in kWh",
+    file: "energy-units.html"
+  }
+];
 
-// Load calculator HTML and execute scripts
+// Create menu cards
+calculators.forEach(calc => {
+  const card = document.createElement('div');
+  card.className = 'calculator-card';
+  card.innerHTML = `<h3>${calc.title}</h3><p>${calc.desc}</p>`;
+  card.onclick = () => loadCalculator(calc.file);
+  menu.appendChild(card);
+});
+
+// Load calculator dynamically
 function loadCalculator(file) {
   fetch('calculators/' + file)
     .then(res => res.text())
@@ -29,6 +38,7 @@ function loadCalculator(file) {
       const container = document.getElementById('calculatorContainer');
       container.innerHTML = html;
 
+      // Execute scripts inside loaded calculator
       const scripts = container.querySelectorAll('script');
       scripts.forEach(oldScript => {
         const newScript = document.createElement('script');
@@ -38,7 +48,7 @@ function loadCalculator(file) {
         oldScript.remove();
       });
 
-      // Close menu on calculator open
+      // Close menu
       menu.classList.add('menu-closed');
     });
 }
