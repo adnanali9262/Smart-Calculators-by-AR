@@ -1,63 +1,28 @@
 <div>
-calcBtn.addEventListener('click',()=>{
-const V = parseFloat($('vol_voltage').value)||0;
-const I = parseFloat($('vol_current').value)||0;
-const L = parseFloat($('vol_length').value)||0;
-const pct = parseFloat($('vol_vdropPercent').value)||0;
-const mat = $('vol_material').value;
-const roundTrip = $('vol_roundTrip').value === 'true';
+<h2>DC Cable Size Calculator</h2>
+<label>Voltage (V): <input type="number" id="voltage" value="12"></label>
+<label>Current (A): <input type="number" id="current" value="10"></label>
+<label>Length (m): <input type="number" id="length" value="5"></label>
+<label>Allowable Voltage Drop (%): <input type="number" id="vdrop" value="3"></label>
+<label>Resistivity (Ω·mm²/m): <input type="number" id="resistivity" value="0.0178"></label>
+<button class="calc-btn" onclick="calculateCable()">Calculate Cable Size</button>
+<div class="result-box" id="dcResult"></div>
 
+<script>
+function calculateCable() {
+  const V = parseFloat(document.getElementById('voltage').value);
+  const I = parseFloat(document.getElementById('current').value);
+  const L = parseFloat(document.getElementById('length').value);
+  const dropPercent = parseFloat(document.getElementById('vdrop').value);
+  const rho = parseFloat(document.getElementById('resistivity').value);
 
-if(!I || !L || !V){ result.style.display='block'; result.innerText='Please enter voltage, current and length.'; return; }
+  const allowableDrop = V * dropPercent / 100;
+  const area = (2 * rho * I * L) / allowableDrop;
 
-
-const VdropAllowed = V * (pct/100);
-const effLength = roundTrip ? L*2 : L;
-const rho = mat==='aluminum' ? 2.82e-8 : 1.724e-8;
-const requiredR = VdropAllowed / Math.max(I,1e-9);
-const A_m2 = rho * effLength / requiredR;
-const A_mm2 = A_m2 * 1e6;
-const standard = [0.5,0.75,1,1.5,2.5,4,6,10,16,25,35,50,70,95,120,150,185,240];
-let recommended = standard.find(s=>s >= A_mm2) || standard[standard.length-1];
-if(A_mm2 < standard[0]) recommended = standard[0];
-const R_for_rec = rho * effLength / (recommended/1e6);
-const voltage_drop_rec = I * R_for_rec;
-const drop_percent_rec = (voltage_drop_rec / V) * 100;
-
-
-result.style.display='block';
-result.innerHTML = `Required conductor area (theoretical): <b>${A_mm2.toFixed(3)} mm²</b><br>`+
-`Recommended nearest standard size: <b>${recommended} mm²</b><br>`+
-`Estimated voltage drop with ${recommended} mm²: <b>${voltage_drop_rec.toFixed(3)} V</b> (${drop_percent_rec.toFixed(2)}%)<br>`+
-`Calculation basis: resistivity method (rho = ${rho} Ω·m). Round-trip length used: ${effLength} m.`+
-`<div style="margin-top:8px"><details><summary style="cursor:pointer">Show calculation breakdown</summary><pre class="calc-breakdown">`+
-`Inputs:
-V = ${V} V
-I = ${I} A
-One-way length = ${L} m
-Round-trip used = ${effLength} m
-Allowable drop = ${pct}% => ${VdropAllowed} V
-`+
-`Material resistivity (rho) = ${rho} Ω·m
-`+
-`Required resistance R = VdropAllowed / I = ${requiredR.toExponential(6)} Ω
-`+
-`Required area A = rho * L_eff / R = ${A_m2.toExponential(6)} m² = ${A_mm2.toFixed(6)} mm²
-`+
-`Recommended standard = ${recommended} mm²
-`+
-`Resistance of recommended conductor R_rec = rho * L_eff / A_rec = ${R_for_rec.toExponential(6)} Ω
-`+
-`Voltage drop with recommended = I * R_rec = ${voltage_drop_rec.toFixed(6)} V (${drop_percent_rec.toFixed(4)}%)
-`+
-`</pre></details></div>`;
-});
-
-
-resetBtn.addEventListener('click',()=>{
-$('vol_voltage').value='12'; $('vol_current').value='30'; $('vol_length').value='3'; $('vol_vdropPercent').value='3'; $('vol_material').value='copper'; $('vol_roundTrip').value='true';
-result.style.display='none';
-});
+  document.getElementById('dcResult').innerHTML = `
+    <strong>Required Cable Cross Section:</strong> ${area.toFixed(2)} mm²<br>
+    <strong>Voltage Drop:</strong> ${(2*rho*I*L/area).toFixed(2)} V
+  `;
 }
 </script>
-
+</div>
