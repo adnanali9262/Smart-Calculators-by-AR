@@ -1,28 +1,64 @@
-<div>
-<h2>DC Cable Size Calculator</h2>
-<label>Voltage (V): <input type="number" id="voltage" value="12"></label>
-<label>Current (A): <input type="number" id="current" value="10"></label>
-<label>Length (m): <input type="number" id="length" value="5"></label>
-<label>Allowable Voltage Drop (%): <input type="number" id="vdrop" value="3"></label>
-<label>Resistivity (Ω·mm²/m): <input type="number" id="resistivity" value="0.0178"></label>
-<button class="calc-btn" onclick="calculateCable()">Calculate Cable Size</button>
-<div class="result-box" id="dcResult"></div>
+<div class="calculator-container">
+  <h2>⚡ DC Cable Size Calculator</h2>
+
+  <label for="voltage">System Voltage (V)</label>
+  <input type="number" id="voltage" placeholder="e.g. 24">
+
+  <label for="current">Current (A)</label>
+  <input type="number" id="current" placeholder="e.g. 20">
+
+  <label for="length">Cable Length One-Way (m)</label>
+  <input type="number" id="length" placeholder="e.g. 30">
+
+  <label for="vdrop">Max Voltage Drop (%)</label>
+  <input type="number" id="vdrop" placeholder="e.g. 3">
+
+  <button class="calc-btn" onclick="calculateDC()">🔍 Calculate</button>
+
+  <div id="result"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-function calculateCable() {
+function calculateDC() {
   const V = parseFloat(document.getElementById('voltage').value);
   const I = parseFloat(document.getElementById('current').value);
   const L = parseFloat(document.getElementById('length').value);
-  const dropPercent = parseFloat(document.getElementById('vdrop').value);
-  const rho = parseFloat(document.getElementById('resistivity').value);
+  const vdropPct = parseFloat(document.getElementById('vdrop').value);
 
-  const allowableDrop = V * dropPercent / 100;
-  const area = (2 * rho * I * L) / allowableDrop;
+  if (isNaN(V) || isNaN(I) || isNaN(L) || isNaN(vdropPct)) {
+    document.getElementById('result').innerHTML = '<p style="color:red;"><strong>Please fill all fields correctly.</strong></p>';
+    return;
+  }
 
-  document.getElementById('dcResult').innerHTML = `
-    <strong>Required Cable Cross Section:</strong> ${area.toFixed(2)} mm²<br>
-    <strong>Voltage Drop:</strong> ${(2*rho*I*L/area).toFixed(2)} V
+  const rho = 0.017; // Copper resistivity
+  const Vdrop = V * (vdropPct / 100);
+  const A = (2 * rho * I * L) / Vdrop;
+  const A_rounded = Math.ceil(A * 10) / 10;
+
+  document.getElementById('result').innerHTML = `
+    <h3>✅ Results:</h3>
+    <p><strong>Required Cable Size:</strong> <span style="color:green;font-size:18px;">${A_rounded} mm²</span> (Copper)</p>
+
+    <h3>📊 Step-by-Step Calculations:</h3>
+    <p><strong>1. Inputs:</strong></p>
+    <ul>
+      <li>System Voltage (V): ${V} V</li>
+      <li>Current (I): ${I} A</li>
+      <li>One-Way Length (L): ${L} m</li>
+      <li>Voltage Drop Limit: ${vdropPct}% = ${Vdrop.toFixed(2)} V</li>
+    </ul>
+
+    <p><strong>2. Formula Used:</strong></p>
+    <code>A = (2 × ρ × I × L) / V<sub>drop</sub></code><br/>
+    <small>ρ = 0.017 Ω·mm²/m (copper resistivity)</small>
+
+    <p><strong>3. Substitution:</strong></p>
+    <code>A = (2 × 0.017 × ${I} × ${L}) / ${Vdrop.toFixed(2)}</code>
+
+    <p><strong>4. Final Calculation:</strong></p>
+    <code>A = ${A.toFixed(2)} mm²</code> → rounded up to <strong>${A_rounded} mm²</strong>
   `;
 }
 </script>
-</div>
