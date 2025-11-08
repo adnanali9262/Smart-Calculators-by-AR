@@ -5,13 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart Calculators by Adnan Rafiq</title>
 
-  <!-- Link to stylesheet -->
   <link rel="stylesheet" href="style.css">
-
-  <!-- Link to PWA manifest -->
   <link rel="manifest" href="manifest.json">
 
-  <!-- Service Worker registration -->
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
@@ -20,19 +16,20 @@
     }
   </script>
 </head>
-
 <body>
-<header>
-  <h1>Smart Calculators</h1>
-  <div>
-    <button id="menuToggleBtn">☰ Menu</button>
-    <button id="installBtn">⚙ Install</button>
-  </div>
-</header>
+  <header>
+    <h1>Smart Calculators</h1>
+    <div>
+      <button id="menuToggleBtn">☰ Main Menu</button>
+      <button id="installBtn">⚙ Install PWA</button>
+    </div>
+  </header>
 
-<main id="calculatorList"></main>
-<div id="calculatorContainer"></div>
+  <main>
+    <nav id="calculatorList" class="menu-open"></nav>
+    <section id="calculatorContainer"></section>
+  </main>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
