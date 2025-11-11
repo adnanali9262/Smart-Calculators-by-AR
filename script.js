@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Try to load calculators.json; fallback to built-in list
   async function loadRegistry() {
     try {
-      const r = await fetch('/calculators.json', {cache: 'no-store'});
+      const r = await fetch('calculators.json', {cache: 'no-store'});
       if(!r.ok) throw new Error('no registry');
       const list = await r.json();
       renderMenu(list);
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadCalculator(file) {
     try {
       container.innerHTML = `<div class="small">Loading…</div>`;
-      const r = await fetch('/calculators/' + file, {cache: 'no-store'});
+      const r = await fetch('calculators/' + file, {cache: 'no-store'});
       if(!r.ok) throw new Error('load failed');
       const html = await r.text();
       container.innerHTML = html;
