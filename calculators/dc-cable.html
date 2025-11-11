@@ -1,26 +1,25 @@
-<!-- DC Cable Calculator - professional layout -->
 <div class="calculator">
   <h2>⚡ DC Cable Size</h2>
 
   <div class="form-grid" style="margin-top:8px">
     <div>
       <label for="dc_voltage">System Voltage (V)</label>
-      <input id="dc_voltage" class="input" type="number" step="any" placeholder="e.g. 24">
+      <input id="dc_voltage" class="input" type="number" step="any" placeholder="24">
     </div>
 
     <div>
       <label for="dc_current">Load Current (A)</label>
-      <input id="dc_current" class="input" type="number" step="any" placeholder="e.g. 20">
+      <input id="dc_current" class="input" type="number" step="any" placeholder="10">
     </div>
 
     <div>
       <label for="dc_length">One-way Length (m)</label>
-      <input id="dc_length" class="input" type="number" step="any" placeholder="e.g. 30">
+      <input id="dc_length" class="input" type="number" step="any" placeholder="30">
     </div>
 
     <div>
       <label for="dc_vdrop">Allowed Voltage Drop (%)</label>
-      <input id="dc_vdrop" class="input" type="number" step="any" placeholder="e.g. 3">
+      <input id="dc_vdrop" class="input" type="number" step="any" placeholder="3">
     </div>
 
     <div class="form-row">
@@ -58,16 +57,11 @@
       return;
     }
     const VdropAllowed = V * (pct/100);
-    const effLength = L * 2; // round-trip assumed for DC
-    const rho = mat === 'aluminum' ? 0.0282 : 0.01724; // Ω·mm²/m (approx)
-    // A (mm^2) = rho(mm²·Ω/m) * I * 2 * L / Vdrop ; rearranged from R = rho*L/A and Vdrop = I*R
+    const effLength = L * 2; // round-trip
+    const rho = mat === 'aluminum' ? 0.0282 : 0.01724; // Ω·mm²/m
     const A = (rho * I * effLength) / VdropAllowed;
     const A_rounded = Math.ceil(A*10)/10;
-
-    // Choose nearest standard size >= required
     const recommended = stdSizes.find(s => s >= A_rounded) || stdSizes[stdSizes.length-1];
-
-    // Compute drop for recommended
     const Rrec = (rho * effLength) / recommended;
     const VdropRec = I * Rrec;
     const dropPctRec = (VdropRec / V) * 100;
@@ -89,20 +83,17 @@
 Inputs:
   V = ${V} V
   I = ${I} A
-  One-way length = ${L} m (round-trip used = ${effLength} m)
+  One-way length = ${L} m (round-trip = ${effLength} m)
   Allowed drop = ${pct}% => ${VdropAllowed.toFixed(4)} V
 Material rho = ${rho} Ω·mm²/m
 
 Formulas:
-  R_allowed = VdropAllowed / I
-  A_required = rho * effLength / R_allowed
+  A_required = rho * effLength / (VdropAllowed / I)
   A_required = ${A.toFixed(6)} mm²
 Recommended = ${recommended} mm²
 
-Resistance of recommended A:
-  R_rec = rho * effLength / A_rec = ${Rrec.toExponential(6)} Ω
-Voltage drop with recommended:
-  V_drop_rec = I * R_rec = ${VdropRec.toFixed(6)} V
+R_rec = rho * effLength / A_rec = ${Rrec.toExponential(6)} Ω
+V_drop_rec = I * R_rec = ${VdropRec.toFixed(6)} V
         </pre>
       </details>
     `;
@@ -118,10 +109,16 @@ Voltage drop with recommended:
     resultWrap.innerHTML='';
   }
 
-  $('dc_calc').addEventListener('click', compute);
-  $('dc_reset').addEventListener('click', reset);
+  document.addEventListener('click', function onDoc(e){
+    // ensure handlers exist after dynamic insertion
+    if ($('dc_calc')) {
+      $('dc_calc').addEventListener('click', compute);
+      $('dc_reset').addEventListener('click', reset);
+      document.removeEventListener('click', onDoc);
+    }
+  });
 
-  // set defaults
-  reset();
+  // fallback: set defaults now if inputs exist
+  setTimeout(()=>{ if($('dc_voltage')) reset(); }, 50);
 })();
 </script>
