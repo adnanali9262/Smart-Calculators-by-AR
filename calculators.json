@@ -1,14 +1,14 @@
 [
   {
-    "id": "dc-cable",
     "title": "DC Cable Size Calculator",
-    "desc": "Voltage-drop based conductor sizing",
-    "file": "dc-cable.html"
+    "desc": "Voltage-drop based conductor sizing (copper)",
+    "file": "dc-cable.html",
+    "icon": "⚡"
   },
   {
-    "id": "energy-units",
-    "title": "Energy Consumption (kWh) Calculator",
-    "desc": "Daily, monthly, yearly units and cost",
-    "file": "energy-units.html"
+    "title": "Energy Consumption Calculator",
+    "desc": "Daily / monthly / yearly energy (kWh)",
+    "file": "energy-units.html",
+    "icon": "🔋"
   }
 ]
